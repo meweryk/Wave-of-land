@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planets Table</title>
+<style>
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  th, td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: center;
+  }
+  th {
+    background-color: #f2f2f2;
+  }
+  button {
+    background: none;
+    border: none;
+    color: blue;
+    cursor: pointer;
+  }
+  .text-glow {
+    text-shadow: 0 0 3px rgba(255, 255, 255, 0.5); /* свечение     белым */
+    color: black;
+  }
+</style>
+</head>
+<body>
+<H4>Земли Сварожьего круга</H4>
+<p>Кроме известных планет и атероидов Солнечной системы в славяно_арийских ведах есть сведения о <a href="https://www.yaplakal.com/forum7/topic2222517.html">27 землях Сварожьего круга</a></p>
+<p>Но речь не о том. В таблице данные периодов обращения Земель вокруг нашего Солнца.</p>
+<p>Перевод в частоту и поэтапное повышение октавы (удвоение) приводит к частотам слышимого диапазона, а дальнейшее октавное повышение к частотам видимого спектра (цвет кнопки). Так бы они звучали при уменьшении системы в "октавное" количество раз</p>
+<p>Клик по кнопке воспроизведёт минорное трезвучие, состоящее из консонансов: основного тона небесного тела, малой терции 6/5 и квинты 3/5 от основного тона</p>
+<table id="planetsTable">
+  <thead>
+    <tr>
+      <th>Земля</th>
+      <th>Планета</th>
+      <th>Период</th>
+      <th>Октава</th>
+      <th>Частота<br>звука, Гц</th>
+      <th>Длина<br>волны, нм</th>    
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Таблица будет заполнена с помощью скрипта -->
+  </tbody>
+</table>
+
+<script>
+  function octav() {
+    const A4 = 108; // первая октава Am имеет частоту 259.2 Гц.
+    const ratio = Math.log2(this.freq / A4); // Расчитываем отношение для определения октавы планеты относительно основной октавы.
+    //this.octave = -Math.round(ratio); // Записываем октаву в поле объекта octave.
+    //this.vawe = this.freq * Math.pow(2, this.octave); // Рассчитываем частоту звукового диапазона и записываем в поле объекта vawe.
+    this.octave = 0
+    this.vawe = this.freq
+ 	   while (this.vawe < 259.2 || this.vave > 432) {
+ 	this.octave ++
+ 	this.vawe *= 2;
+ }
+    		//расчёт параметров света: частота и длина волны)
+  		let i = 1 //октава света
+  		let Fsvo = 1;
+  		this.lambda = 781;//длина волны света
+  		while (this.lambda >= 380 & this.lambda > 780) {
+  			Fsvo = this.vawe * Math.pow(2, i);
+  			this.lambda = 299792458/(Fsvo * Math.pow(10, -9));
+  			i++
+  		}
+  		this.color = changeColor(this.lambda);
+  }
+  
+  function changeColor(w) {
+  //расчёт длины волны
+  let red, green, blue;
+  
+  if (w < 380 || w > 781) {
+  [red, gren, blue] = [0, 0, 0];
+  } else if (w < 440) {
+  [red, green, blue] = [(440 - w) / 60, 0, 1];
+  } else if (w < 490) {
+  [red, green, blue] = [0, (w - 440) / 50, 1];
+  } else if (w < 510) {
+  [red, green, blue] = [0, 1, (510 - w) / 20];
+  } else if (w < 580) {
+  [red, green, blue] = [(w - 510) / 70, 1, 0];
+  } else if (w < 645) {
+  [red, green, blue] = [1, (645 - w) / 65, 0];
+  } else {
+  [red, green, blue] = [1, 0, 0];
+  }
+  
+  let factor;
+  if (w < 380 || w > 781) {
+  factor = 0;
+  } else if (w < 420) {
+  factor = 0.3 + 0.7 * (w - 380) / 40;
+  } else if (w < 701) {
+  factor = 1.0;
+  } else {
+  factor = 0.3 + 0.7 * (780 - w) / 80;
+  }
+  
+  const gamma = 0.8;
+  
+  const R = (red > 0 ? 255 * Math.pow(red * factor, gamma) : 0);
+  const G = (green > 0 ? 255 * Math.pow(green * factor, gamma) : 0);
+  const B = (blue > 0 ? 255 * Math.pow(blue * factor, gamma) : 0);
+  
+  return   `rgb(${R}, ${G}, ${B})`;
+  }
+
+  const Earth = {
+    planets: [
+      {
+        name: "Ярило",
+        planet: "Солнце",
+        time_ear: "25.38сут.",
+        time_sec: 25.38 * 24 * 3600,
+        freq: 1 / (25.38 * 24 * 3600)
+      },
+      {
+        name: "Хорс",
+        planet: "Меркурий",
+        time_ear: "88сут.",
+        time_sec: 88 * 24 * 3600,
+        freq: 1 / (88 * 24 * 3600)
+      },
+      {
+        name: "Мерцанa",
+        planet: "Венера",
+        time_ear: "255сут.",
+        time_sec: 255 * 24 * 3600,
+        freq: 1 / (255 * 24 * 3600)
+      },
+      {
+      name: "Мидгард",
+      planet: "Земля",
+      time_ear: "365.25сут.",
+      time_sec: 365.25 * 24 * 3600,
+      freq: 1 / (365.25 * 24 * 3600)
+    },
+    {
+      name: "Орея",
+      planet: "Марс",
+      time_ear: "1.881год",
+      time_sec: 1.881 * 365.25 * 24 * 3600,
+      freq: 1 / (1.881 * 365.25 * 24 * 3600)
+    },
+    {
+      name: "Дея",
+      planet: "Фаэтон",
+      time_ear: "5.25лет",
+      time_sec: 5.25 * 365.25 * 24 * 3600,
+      freq: 1 / (5.25 * 365.25 * 24 * 3600)
+    },
+    {
+      name: "Перун",
+      planet: "Юпитер",
+      time_ear: "11.86лет",
+      time_sec: 11.86 * 365.25 * 24 * 3600,
+      freq: 1 / (11.86 * 365.25 * 24 * 3600)
+    },
+    {
+      name: "Стрибог",
+      planet: "Сатурн",
+      time_ear: "29.46лет",
+      time_sec: 29.46 * 365.25 * 24 * 3600,
+      freq: 1 / (29.46 * 365.25 * 24 * 3600)
+    },
+    {
+      name: "Индра",
+      planet: "Хирон",
+      time_ear: "58.92лет",
+      time_sec: 58.92 * 365.25 * 24 * 3600,
+      freq: 1 / (58.92 * 365.25 * 24 * 3600)
+    },
+    {
+      name: "Варун",
+      planet: "Уран",
+      time_ear: "84.02лет",
+      time_sec: 84.02 * 365.25 * 24 * 3600,
+      freq: 1 / (84.02 * 365.25 * 24 * 3600)
+    },
+    {
+      name: "Ния",
+      planet: "Нептун",
+      time_ear: "164.79лет",
+      time_sec: 164.79 * 365.25 * 24 * 3600,
+      freq: 1 / (164.79 * 365.25 * 24 * 3600)
+    },
+    {
+      name: "Вий",
+      planet: "Плутон",
+      time_ear: "248.7лет",
+      time_sec: 248.7 * 365.25 * 24 * 3600,
+      freq: 1 / (248.7 * 365.25 * 24 * 3600)
+    },
+    {
+      name: "Велес",
+      planet: "Вулкан",
+      time_ear: "346.78лет",
+      time_sec: 346.78 * 365.25 * 24 * 3600,
+      freq: 1 / (346.78 * 365.25 * 24 * 3600)
+    },
+    {
+      name: "Семаргл",
+      planet: "Даур",
+      time_ear: "485.49лет",
+      time_sec: 485.49 * 365.25 * 24 * 3600,
+      freq: 1 / (485.49 * 365.25 * 24 * 3600)
+    },
+    {
+      name: "Один",
+      planet: "Прозерпина",
+      time_ear: "689.69лет",
+      time_sec: 689.69 * 365.25 * 24 * 3600,
+      freq: 1 / (689.69 * 365.25 * 24 * 3600)
+    },
+    {
+      name: "Лада",
+      planet: "Изида",
+      time_ear: "883.6лет",
+      time_sec: 883.6 * 365.25 * 24 * 3600,
+      freq: 1 / (883.6 * 365.25 * 24 * 3600)
+    },
+    {
+      name: "Удрзеца",
+      planet: "Осирис",
+      time_ear: "1147.38лет",
+      time_sec: 1147.38 * 365.25 * 24 * 3600,
+      freq: 1 / (1147.38 * 365.25 * 24 * 3600)
+    },
+    {
+      name: "Коляды",
+      planet: "-",
+      time_ear: "1501.62лет",
+      time_sec: 1501.62 * 365.25 * 24 * 3600,
+      freq: 1 / (1501.62 * 365.25 * 24 * 3600)
+    },
+    {
+      name: "Радогост",
+      planet: "-",
+      time_ear: "1952.11лет",
+      time_sec: 1952.11 * 365.25 * 24 * 3600,
+      freq: 1 / (1952.11 * 365.25 * 24 * 3600)
+    },
+    {
+      name: "Тор",
+      planet: "-",
+      time_ear: "2537.75лет",
+      time_sec: 2537.75 * 365.25 * 24 * 3600,
+      freq: 1 / (2537.75 * 365.25 * 24 * 3600)
+    },
+    {
+      name: "Прове",
+      planet: "-",
+      time_ear: "3456лет",
+      time_sec: 3456 * 365.25 * 24 * 3600,
+      freq: 1 / (3456 * 365.25 * 24 * 3600)
+    },
+    {
+      name: "Крод",
+      planet: "-",
+      time_ear: "3888лет",
+      time_sec: 3888 * 365.25 * 24 * 3600,
+      freq: 1 / (3888 * 365.25 * 24 * 3600)
+    },
+    {
+      name: "Полкан",
+      planet: "-",
+      time_ear: "4752лет",
+      time_sec: 4752 * 365.25 * 24 * 3600,
+      freq: 1 / (4752 * 365.25 * 24 * 3600)
+    },
+    {
+      name: "Змий",
+      planet: "-",
+      time_ear: "5904лет",
+      time_sec: 5904 * 365.25 * 24 * 3600,
+      freq: 1 / (5904 * 365.25 * 24 * 3600)
+    },
+    {
+      name: "Ругия",
+      planet: "-",
+      time_ear: "6912лет",
+      time_sec: 6912 * 365.25 * 24 * 3600,
+      freq: 1 / (6912 * 365.25 * 24 * 3600)
+    },
+    {
+      name: "Чур",
+      planet: "-",
+      time_ear: "9504лет",
+      time_sec: 9504 * 365.25 * 24 * 3600,
+      freq: 1 / (9504 * 365.25 * 24 * 3600)
+    },
+    {
+      name: "Догода",
+      planet: "-",
+      time_ear: "11664лет",
+      time_sec: 11664 * 365.25 * 24 * 3600,
+      freq: 1 / (11664 * 365.25 * 24 * 3600)
+    },
+    {
+      name: "Дайм",
+      planet: "-",
+      time_ear: "15552лет",
+      time_sec: 15552 * 365.25 * 24 * 3600,
+      freq: 1 / (15552 * 365.25 * 24 * 3600)
+    },
+    {
+      name: "Сварожий круг",
+      planet: "Прецессия оси",
+      time_ear: "25920лет",
+      time_sec: 25920 * 365.25 * 24 * 3600,
+      freq: 1 / (25920 * 365.25 * 24 * 3600)
+    }
+    ]
+  };
+
+  // Применяем функцию octav к каждому объекту в массиве planets
+  Earth.planets.forEach(planet => octav.call(planet));
+  
+  function startSounds(frequencies) {
+      let attackTime = 0.1; // Время атаки в секундах
+      let decayTime = 0.2; // Время спада в секундах
+      let sustainLevel = 0.5; // Уровень удержания (от 0 до 1)
+      let releaseTime = 3; // Время затухания в секундах
+
+                let context = new AudioContext();
+  
+  // Создание громкости для генератора звука
+  var oscillatorVolume = 0.5; // Пример: установка громкости на 50%
+  
+                for (var i = 0; i < frequencies.length; i++) {
+                    oscillator = context.createOscillator();
+                    
+                    gainNode = context.createGain();
+                    
+                    // Установка параметров ADSR
+    gainNode.gain.setValueAtTime(0, context.currentTime); // Устанавливаем громкость на 0 сразу
+    gainNode.gain.linearRampToValueAtTime(1, context.currentTime + attackTime); // Атака
+    gainNode.gain.linearRampToValueAtTime(sustainLevel, context.currentTime + attackTime + decayTime); // Спад до уровня удержания
+    gainNode.gain.setValueAtTime(sustainLevel, context.currentTime + attackTime + decayTime); // Удержание
+    gainNode.gain.linearRampToValueAtTime(0, context.currentTime + attackTime + decayTime + releaseTime); // Затухание
+                    
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(frequencies[i], context.currentTime);
+                    
+                    oscillator.connect(gainNode);
+    gainNode.connect(context.destination)
+                    oscillator.start();
+                    
+                    setTimeout(function() {
+    oscillator.stop();
+    oscillator.disconnect();
+}, (attackTime + decayTime + releaseTime) * 1000); 
+                }
+            }
+
+  // Функция для создания интерактивной кнопки с функцией
+  function createButton(name, vawe) {
+    const button = document.createElement('button');
+    button.classList.add('text-glow');
+    button.textContent = name;
+    button.addEventListener('click', function() {
+      let frequencies = []
+      frequencies[0] = (vawe).toFixed(2)
+      frequencies[1] = (vawe*6/5).toFixed(2)
+      frequencies[2] = (vawe*3/2).toFixed(2)
+      startSounds(frequencies);
+    });
+    return button;
+  }
+
+  // Функция для заполнения таблицы данными из массива планет
+  function fillTable() {
+    const tbody = document.querySelector('#planetsTable tbody');
+    Earth.planets.forEach(planet => {
+      const row = document.createElement('tr');
+      const planetNameCell = document.createElement('td');
+      planetNameCell.style.backgroundColor = planet.color
+      const button = createButton(planet.name, planet.vawe);
+      planetNameCell.appendChild(button); // Добавляем интерактивную кнопку с названием планеты
+      
+      row.appendChild(planetNameCell);
+    const planetData = [
+      planet.planet,
+      planet.time_ear,
+      planet.octave,
+      planet.vawe.toFixed(2),
+      planet.lambda.toFixed(1)
+    ];
+    planetData.forEach(data => {
+      const cell = document.createElement('td');
+      cell.textContent = data;
+      row.appendChild(cell);
+    });
+    tbody.appendChild(row);
+  });
+  }
+
+  // Заполнение таблицы при загрузке страницы
+  window.onload = fillTable;
+</script>
+</body>
+</html>
