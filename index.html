@@ -8,9 +8,30 @@
   p {
     font-size: 12px;
   }
+  .button {
+                padding: 2px 4px;
+                border-radius: 3px;
+                background-color: grey;
+                font-size: 12px;
+                cursor: pointer;
+                transition: background-color 0.3s, color 0.3s;
+                width: 100%;
+                border: 1px solid #516da1e7;
+                color: #ffffffcc;
+            }
+
+            button:hover {
+                background-color: ##aaf4ff84;
+            }
+
+            button.playing {
+                background-color: ##d5f4ff84;
+                color: white;
+            }
   table {
     border-collapse: collapse;
     width: 100%;
+    font-size: 12px;
   }
   th, td {
     border: 1px solid black;
@@ -25,6 +46,7 @@
     border: none;
     color: blue;
     cursor: pointer;
+    padding: none;
   }
   .text-glow {
     text-shadow: 0 0 3px rgba(255, 255, 255, 0.5); /* свечение     белым */
@@ -37,7 +59,10 @@
 <p>Кроме известных планет и атероидов Солнечной системы в славяно_арийских ведах есть сведения о <a href="https://www.yaplakal.com/forum7/topic2222517.html">27 землях Сварожьего круга</a></p>
 <p>Но речь не о том. В таблице данные периодов обращения Земель вокруг нашего Солнца.</p>
 <p>Перевод в частоту и поэтапное повышение октавы (удвоение) приводит к частотам слышимого диапазона, а дальнейшее октавное повышение к частотам видимого спектра (цвет кнопки). Так бы они звучали при уменьшении системы в "октавное" количество раз</p>
-<p>Клик по кнопке воспроизведёт минорное трезвучие, состоящее из консонансов: основного тона небесного тела, малой терции 6/5 и квинты 3/5 от основного тона</p>
+<p>Клик по кнопке воспроизведёт минорное трезвучие, состоящее из консонансов: основного тона небесного тела, малой терции 6/5 и квинты 3/2 от основного тона; или мажорное трезвучие 5/4 и 3/2 основного тона.</p>
+<button id="play1" class="button" onclick="toggleOne()">Один звук по умолчанию </button><br>
+<button id="playJ" class="button" onclick="toggleMajor()">мажорное трезвучие </button><br>
+        <button id="playN" class="button" onclick="toggleMinor()">минорное трезвучие </button><br>
 <table id="planetsTable">
   <thead>
     <tr>
@@ -55,6 +80,19 @@
 </table>
 
 <script>
+  var major = 1;
+  function toggleMajor() {
+                major = 2
+            }
+
+            function toggleMinor() {
+                major = 3
+            }
+            
+            function toggleOne() {
+                major = 1
+            }
+            
   function octav() {
     const A4 = 108; // первая октава Am имеет частоту 259.2 Гц.
     const ratio = Math.log2(this.freq / A4); // Расчитываем отношение для определения октавы планеты относительно основной октавы.
@@ -333,7 +371,7 @@
       let attackTime = 0.1; // Время атаки в секундах
       let decayTime = 0.2; // Время спада в секундах
       let sustainLevel = 0.5; // Уровень удержания (от 0 до 1)
-      let releaseTime = 3; // Время затухания в секундах
+      let releaseTime = 1; // Время затухания в секундах
 
                 let context = new AudioContext();
   
@@ -341,9 +379,9 @@
   var oscillatorVolume = 0.5; // Пример: установка громкости на 50%
   
                 for (var i = 0; i < frequencies.length; i++) {
-                    oscillator = context.createOscillator();
+                    let oscillator = context.createOscillator();
                     
-                    gainNode = context.createGain();
+                    let gainNode = context.createGain();
                     
                     // Установка параметров ADSR
     gainNode.gain.setValueAtTime(0, context.currentTime); // Устанавливаем громкость на 0 сразу
@@ -373,9 +411,17 @@
     button.textContent = name;
     button.addEventListener('click', function() {
       let frequencies = []
-      frequencies[0] = (vawe).toFixed(2)
-      frequencies[1] = (vawe*6/5).toFixed(2)
-      frequencies[2] = (vawe*3/2).toFixed(2)
+      if (major == 3) {
+        frequencies[0] = (vawe).toFixed(2)
+        frequencies[1] = (vawe*6/5).toFixed(2)
+        frequencies[2] = (vawe*3/2).toFixed(2)
+      } else if (major == 1) {
+        frequencies[0] = (vawe).toFixed(2)
+      } else {
+        frequencies[0] = (vawe).toFixed(2)
+        frequencies[1] = (vawe*5/4).toFixed(2)
+        frequencies[2] = (vawe*3/2).toFixed(2)
+      }
       startSounds(frequencies);
     });
     return button;
@@ -407,9 +453,9 @@
     tbody.appendChild(row);
   });
   }
-
+  
   // Заполнение таблицы при загрузке страницы
   window.onload = fillTable;
 </script>
 </body>
-</html>
+  </html>
