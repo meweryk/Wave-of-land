@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Воспроизведение звука</title>
+        <style>
+            button {
+                padding: 10px 20px;
+                border: none;
+                border-radius: 5px;
+                font-size: 16px;
+                cursor: pointer;
+                transition: background-color 0.3s, color 0.3s;
+                width: 100%;
+                border: 1px solid #aaa;
+            }
+
+            button:hover {
+                background-color: #ddd;
+            }
+
+            button.playing {
+                background-color: #333;
+                color: white;
+            }
+
+        </style>
+    </head>
+    <body>
+        <canvas id="spectrumCanvas" width="800" height="100"></canvas>
+        <button onclick="startAnalyzer()">включить анализ спектра</button>
+        <h2>Введите частоту звука (в Гц):</h2>
+        <input type="number" id="frequencyInput" min="1" max="20000" step="0.01" value="299.98">
+        <button id="calc" onclick="calc()">Ввод</button><br>
+        <button id="playJ" onclick="toggleMajor()">мажорное трезвучие по умолчанию </button><br>
+        <button id="playN" onclick="toggleMinor()">минорное трезвучие </button>
+
+        <div id="octaves"></div>
+
+        <script>
+
+            var oscillator;
+            var oscillators = []; // массив для хранения всех созданных осцилляторов
+            var isPlaying = false;
+            var isCalc = false;
+            var major = true;
+            var attackTime = 0.1; // Время атаки в секундах
+    var decayTime = 0.2; // Время спада в секундах
+    var sustainLevel = 0.5; // Уровень удержания (от 0 до 1)
+    var releaseTime = 1200; // Время затухания в секундах
+            //var context = new(window.AudioContext || window.webkitAudioContext)(); // Создание аудио-контекста
+            
+
+            var gainNode;
+
+            function toggleMajor() {
+                major = true
+            }
+
+            function toggleMinor() {
+                major = false
+            }
+            
+            function calc() {
+                if (!isCalc) {
+                    var frequency = parseFloat(document.getElementById("frequencyInput").value);
+                    if (isNaN(frequency) || frequency < 1 || frequency > 20000) {
+                        alert("Пожалуйста, введите допустимую частоту (от 1 до 20000 Гц).");
+                        return;
+                    }
+                    
+                    if ( (frequency*3/2) > 24000) {
+                 return
+                 }       
+                    calculateOctaves(frequency);
+                    isCalc = true;
+                    document.getElementById("calc").textContent = "Ok";
+                    document.getElementById("calc").classList.add("calc");
+                } else {
+                    stopSounds();
+                    isCalc = false;
+                    document.getElementById("calc").textContent = "Ввод";
+                    document.getElementById("calc").classList.remove("calc");
+                    document.getElementById("octaves").innerHTML = ""; // Очищаем вывод 
+                }
+            }
+
+            function startSounds(frequencies) {
+
+                var context = new AudioContext();
+  
+  // Создание громкости для генератора звука
+  var oscillatorVolume = 0.5; // Пример: установка громкости на 50%
+  
+  
+  
+                for (var i = 0; i < frequencies.length; i++) {
+                    oscillator = context.createOscillator();
+                    
+                    gainNode = context.createGain();
+                    
+                    // Установка параметров ADSR
+    gainNode.gain.setValueAtTime(0, context.currentTime); // Устанавливаем громкость на 0 сразу
+    gainNode.gain.linearRampToValueAtTime(1, context.currentTime + attackTime); // Атака
+    gainNode.gain.linearRampToValueAtTime(sustainLevel, context.currentTime + attackTime + decayTime); // Спад до уровня удержания
+    gainNode.gain.setValueAtTime(sustainLevel, context.currentTime + attackTime + decayTime); // Удержание
+    gainNode.gain.linearRampToValueAtTime(0, context.currentTime + attackTime + decayTime + releaseTime); // Затухание
+                    
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(frequencies[i], context.currentTime);
+                    
+                    oscillator.connect(gainNode);
+    gainNode.connect(context.destination)
+                    oscillator.start();
+                    oscillators.push(oscillator); // добавляем осциллятор в массив
+                }
+            }
+
+            function stopSounds() {
+                for (var i = 0; i < oscillators.length; i++) {
+                oscillators[i].stop(); // останавливаем каждый осциллятор
+                }
+                oscillators = []; // очищаем массив осцилляторов
+            }
+
+            function calculateOctaves(baseFrequency) {
+                var octavesDiv = document.getElementById("octaves");
+                octavesDiv.innerHTML = ""; // Очищаем предыдущий вывод октав
+
+                for (var i = 0; i <= 10; i++) {
+                    var octaveFrequency = baseFrequency * Math.pow(2, i);
+                    if (octaveFrequency > 20000) {
+                        break; // Принудительное завершение цикла при частоте больше 20000Гц
+                    }
+                    var octaveButton = document.createElement("button");
+                    octaveButton.textContent = "Играть " + octaveFrequency.toFixed(2) + "Гц";
+                    octaveButton.classList.add("octave-button");
+                    addOctaveFunctionality(octaveButton, octaveFrequency);
+                    octavesDiv.appendChild(octaveButton);
+                }
+            }
+
+            function addOctaveFunctionality(button, frequency) {
+                var isOctavePlaying = false;
+
+                button.addEventListener("click", function() {
+                    if (!isOctavePlaying) {
+                        var frequencies = []
+                        if (!major) {
+                            frequencies[0] = (frequency).toFixed(2)
+                            frequencies[1] = (frequency*6/5).toFixed(2)
+                            frequencies[2] = (frequency*3/2).toFixed(2)
+                        } else {
+                            frequencies[0] = frequency.toFixed(2)
+                            frequencies[1] = (frequency*5/4).toFixed(2)
+                            frequencies[2] = (frequency*3/2).toFixed(2)
+                        }
+                        startSounds(frequencies);
+                        isOctavePlaying = true;
+                        button.textContent = "Стоп " + frequencies[0] + "Гц, " + frequencies[1] + "Гц, "+ frequencies[2] + "Гц, ";
+                        button.classList.add("playing");
+                    } else {
+                        stopSounds();
+                        isOctavePlaying = false;
+                        button.textContent = "Играть " + frequency.toFixed(2) + "Гц";
+                        button.classList.remove("playing");
+                    }
+                });
+            }
+
+            var canvas = document.getElementById('spectrumCanvas');
+            var ctx = canvas.getContext('2d');
+
+            // Функция для отрисовки спектрограммы
+            function drawSpectrum(dataArray) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                var barWidth = canvas.width / dataArray.length;
+                var barHeight;
+                var x = 0;
+
+                for(var i = 0; i < dataArray.length; i++) {
+                    barHeight = dataArray[i];
+                    ctx.fillStyle = 'rgb(' + (barHeight+100) + ',50,50)';
+                    ctx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
+                    x += barWidth + 1;
+                }
+            }
+
+            // Функция для запуска анализатора микрофона при нажатии на кнопку
+            function startAnalyzer() {
+                SpectrumAnalyzer.analyzeMicrophone(drawSpectrum);
+            }
+
+            var SpectrumAnalyzer = (function() {
+                var context = new AudioContext();
+                var analyser = context.createAnalyser();
+                analyser.fftSize = 2048; // Размер FFT для анализа спектра
+
+                // Функция для анализа спектра звука с микрофона
+                function analyzeMicrophone(callback) {
+                    navigator.mediaDevices.getUserMedia({ audio: true })
+                        .then(function(stream) {
+                        microphoneStream = stream;
+                        
+                            var microphone = context.createMediaStreamSource(stream);
+                            microphone.connect(analyser);
+                            
+                            
+                            
+
+
+                            var bufferLength = analyser.frequencyBinCount;
+                            var dataArray = new Uint8Array(bufferLength);
+
+                            function draw() {
+                                analyser.getByteFrequencyData(dataArray);
+                                callback(dataArray);
+                                requestAnimationFrame(draw);
+                            }
+
+                            draw();
+                        })
+                        .catch(function(err) {
+                            console.error('Ошибка при доступе к микрофону: ', err);
+                        });
+                }
+
+                return {
+                    analyzeMicrophone: analyzeMicrophone
+                };
+            })();
+        </script>
+    </body>
+</html>
